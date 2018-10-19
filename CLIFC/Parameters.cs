@@ -37,26 +37,29 @@ namespace CLIFC
         {
             arguments = Parse(args);
             List<string> fs = new List<string>();
-            void add(string path)
+            if (args.Length > 0)
             {
-                try
+                void add(string path)
                 {
-                    string fp = Path.GetFullPath(path);
-                    fs.Add(fp);
+                    try
+                    {
+                        string fp = Path.GetFullPath(path);
+                        fs.Add(fp);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error with getting full path of {0} file. Message: {1}", path, e.Message);
+                    }
                 }
-                catch (Exception e)
+                string arg = args[0];
+                if (!arg.StartsWith("-"))
+                    add(arg);
+                if (arguments.ContainsKey("f"))
                 {
-                    Console.WriteLine("Error with getting full path of {0} file. Message: {1}", path, e.Message);
+                    string[] files = arguments["f"];
+                    foreach (string file in files)
+                        add(file);
                 }
-            }
-            string arg = args[0];
-            if (!arg.StartsWith("-"))
-                add(arg);
-            if (arguments.ContainsKey("f"))
-            {
-                string[] files = arguments["f"];
-                foreach (string file in files)
-                    add(file);
             }
             Files = fs.ToArray();
         }

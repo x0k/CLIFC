@@ -87,20 +87,5 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="ILRepack">
-      <Version>2.0.16</Version>
-    </PackageReference>
-    <PackageReference Include="ILRepack.MSBuild.Task">
-      <Version>1.0.9</Version>
-    </PackageReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="AfterBuild" Condition="'$(Configuration)' == 'Release'">
-    <ItemGroup>
-      <InputAssemblies Include="$(OutputPath)\$(AssemblyName).exe" />
-      <InputAssemblies Include="$(OutputPath)\*.dll" />
-    </ItemGroup>
-    <ILRepack Parallel="true" Internalize="true" InputAssemblies="@(InputAssemblies)" TargetKind="Exe" OutputFile="$(OutputPath)\$(AssemblyName).exe" ZeroPeKind="false" />
-  </Target>
 </Project>

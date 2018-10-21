@@ -9,7 +9,7 @@ namespace CLIFC
         [Value(0, Default = null, HelpText = "File to be processed", Required = false, MetaName = "input file")]
         public string File { get; set; }
 
-        [Option('f', Separator =' ', HelpText = "Additions files to be processed.", Required = false)]
+        [Option('f', Separator =' ', HelpText = "Additional files to be processed.", Required = false)]
         public IEnumerable<string> Files { get; set; }
 
         [Option('w', Default = false, HelpText = "Watcher mode, app will restart after changing files.", Required = false)]

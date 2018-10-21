@@ -2,20 +2,20 @@
 using System.IO;
 using System.Collections.Generic;
 using CLIPSNET;
+using CommandLine;
 
 namespace CLIFC
 {
     public class Clips
     {
 
-        private static void PPrint(PrimitiveValue value)//PrintPrimitive
+        private static void PPrint(PrimitiveValue value)
         {
             string data = value.ToString();
             Console.WriteLine(data);
         }
 
         private CLIPSNET.Environment env;
-        private readonly Options options;
 
         private void LoadData (string data)
         {
@@ -53,9 +53,8 @@ namespace CLIFC
             }
         }
 
-        private void Load ()
+        private void Load (string[] files)
         {
-            string[] files = options.Files;
             foreach (string file in files)
             {
                 try
@@ -76,28 +75,36 @@ namespace CLIFC
             }
         }
 
-        public Clips (string[] args)
+        private Action run;
+
+        private void Init (Options options)
         {
-            options = new Options(args);
-            env = new CLIPSNET.Environment();
-            //REPL Mode
-            if (options.Count == 0)
+            var list = new List<string>();
+            if (options.File != null)
+                list.Add(options.File);
+            if (options.Files != null)
+                list.AddRange(options.Files);
+            var arr = list.ToArray();
+            list = null;
+            if (arr.Length == 0)
             {
-                env.CommandLoop();
-            }
-            else
-            {
-                //Help
-                if (options.Contains("h"))
-                    Console.WriteLine("Options:\n" +
-                        " -h - this message\n" +
-                        " Without parameters - REPL mode\n" +
-                        " fileName - Load file and run\n"
-                    );
-                //Watcher
-                if (options.Contains("w"))
+                run = () =>
                 {
-                    Watcher watcher = new Watcher(options.Files, () => {
+                    env.CommandLoop();
+                };
+            }
+            else if (arr.Length > 0)
+            {
+                run = () =>
+                {
+                    env.Clear();
+                    Load(arr);
+                    env.Run();
+                };
+                if (options.Watcher)
+                {
+                    Watcher watcher = new Watcher(arr, () =>
+                    {
                         Console.WriteLine("Reload.");
                         Run();
                     });
@@ -106,13 +113,19 @@ namespace CLIFC
             }
         }
 
+        public Clips (string[] args)
+        {
+            env = new CLIPSNET.Environment();
+            
+            Parser.Default.ParseArguments<Options>(args)
+                .WithParsed(Init);
+        }
+
         public void Run ()
         {
             try
             {
-                env.Clear();
-                Load();
-                env.Run();
+                run?.Invoke();
             }
             catch (Exception error)
             {
@@ -121,7 +134,7 @@ namespace CLIFC
                     Console.WriteLine("Message: {0}", error.Message);
                     List<CLIPSLineError> errors = (error as CLIPSLoadException).LineErrors;
                     foreach (CLIPSLineError err in errors)
-                        Console.WriteLine("Line: {0}, Message: {1}", err.LineNumber, err.Message);
+                        Console.WriteLine("Line: {0}: {1}", err.LineNumber, err.Message);
                 }
                 else
                 {

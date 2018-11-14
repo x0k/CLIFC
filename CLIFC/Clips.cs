@@ -16,6 +16,7 @@ namespace CLIFC
         }
 
         private CLIPSNET.Environment env;
+        private Action run;
 
         private void LoadData (string data)
         {
@@ -75,8 +76,6 @@ namespace CLIFC
             }
         }
 
-        private Action run;
-
         private void Init (Options options)
         {
             var list = new List<string>();
@@ -99,6 +98,7 @@ namespace CLIFC
                 {
                     env.Clear();
                     Load(arr);
+                    env.Reset();
                     env.Run();
                 };
                 if (options.Watcher)

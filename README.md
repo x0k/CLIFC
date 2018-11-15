@@ -13,6 +13,6 @@ Simple Command Line Interface for CLIPS
 To use non-constructor commands in loaded files, wrap them in curly braces.
 ```
 (deffacts ...)
-{(assert(fact))}
+{assert(fact)}
 (defrule ...)
 ```

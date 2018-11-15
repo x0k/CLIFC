@@ -34,7 +34,7 @@ namespace CLIFC
                     }
                     r = data.IndexOf('}', l + 3);
                     string val = data.Substring(l + 1, r - l - 1);
-                    PrimitiveValue log = env.Eval(val);
+                    PrimitiveValue log = env.Eval('(' + val + ')');
                     PPrint(log);
                     if (r < data.Length - 1)
                         l = data.IndexOf('{', r);

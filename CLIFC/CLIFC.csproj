@@ -50,10 +50,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CLIPSCLRWrapper, Version=1.0.6865.40607, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\CLIPSCLRWrapper.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -129,6 +125,12 @@
     <PackageReference Include="System.Runtime.Extensions">
       <Version>4.1.0</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\CLIPS\CLIPSCLRWrapper\CLIPSCLRWrapper.vcxproj">
+      <Project>{1fc765ef-28c7-42a1-865e-2b26ab30e733}</Project>
+      <Name>CLIPSCLRWrapper</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

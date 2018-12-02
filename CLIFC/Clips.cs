@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Collections.Generic;
 using CLIPSNET;
 using CommandLine;
@@ -18,54 +19,82 @@ namespace CLIFC
         private CLIPSNET.Environment env;
         private Action run;
 
-        private void LoadData (string data)
-        {
-            if (data.Contains("{"))
-            {
-                data = "}" + data;
-                int r = 0;
-                int l = data.IndexOf('{');
-                do
-                {
-                    if (l - r > 3)
-                    {
-                        string res = data.Substring(r + 1, l - r - 1);
-                        env.LoadFromString(res);
-                    }
-                    r = data.IndexOf('}', l + 3);
-                    string val = data.Substring(l + 1, r - l - 1);
-                    PrimitiveValue log = env.Eval('(' + val + ')');
-                    PPrint(log);
-                    if (r < data.Length - 1)
-                        l = data.IndexOf('{', r);
-                    else
-                        break;
-                } while (l > -1);
-                if (r < data.Length - 1)
-                {
-                    l = data.Length;
-                    string res = data.Substring(r + 1, l - r - 1);
-                    env.LoadFromString(res);
-                }
-            }
-            else
-            {
-                env.LoadFromString(data);
-            }
-        }
-
         private void Load (string[] files)
         {
+            char[] breakChars = { '{', '>' };
+            string data = String.Empty;
             foreach (string file in files)
             {
                 try
                 {
-                    using (FileStream fs = File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    FileStream fs = File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                    TextReader reader = new StreamReader(fs);
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        using (TextReader reader = new StreamReader(fs))
+                        if (line.Length > 0)
                         {
-                            string data = reader.ReadToEnd();
-                            LoadData(data);
+                            char firstChar = line[0];
+                            if (breakChars.Contains(firstChar))
+                            {
+                                if (data.Length > 0)
+                                {
+                                    env.LoadFromString(data);
+                                    data = String.Empty;
+                                }
+                                switch (firstChar)
+                                {
+                                    case '{':
+                                        line = line.Substring(1);
+                                        int r;
+                                        do
+                                        { 
+                                            r = line.IndexOf('}');
+                                            if (r >= 0)
+                                            {
+                                                data += line.Substring(0, r);
+                                            }
+                                            else
+                                            {
+                                                if (line.Length > 0)
+                                                {
+                                                    if (line.Contains(';'))
+                                                        line += "\n";
+                                                    data += line;
+                                                }
+                                                line = reader.ReadLine();
+                                            }
+                                        } while (r < 0 && line != null);
+                                        PrimitiveValue log = env.Eval('(' + data + ')');
+                                        PPrint(log);
+                                        data = String.Empty;
+                                        break;
+                                    case '>':
+                                        do
+                                        {
+                                            Console.Write("> ");
+                                            line = Console.ReadLine();
+                                            if (line.Length == 0 || line == "end")
+                                                break;
+                                            try
+                                            {
+                                                PrimitiveValue res = env.Eval(line);
+                                                PPrint(res);
+                                            }
+                                            catch (Exception err)
+                                            {
+                                                Console.WriteLine("Error: {1}", file, err.Message);
+                                            }
+                                        } while (true);
+                                        break;
+                                }
+                            }
+                            else
+                            {
+                                if (line.Contains(';'))
+                                    line += "\n";
+                                data += line;
+                            }
                         }
                     }
                 }
@@ -73,6 +102,10 @@ namespace CLIFC
                 {
                     Console.WriteLine("Error with reading file: {0}, Error: {1}", file, err.Message);
                 }
+            }
+            if (data.Length > 0)
+            {
+                env.LoadFromString(data);
             }
         }
 

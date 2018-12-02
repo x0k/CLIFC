@@ -16,3 +16,11 @@ To use non-constructor commands in loaded files, wrap them in curly braces.
 {assert(fact)}
 (defrule ...)
 ```
+To switch in REPL mode in the middle of a file load, use the '>' operator.  
+
+```
+(deffacts ...)
+> 
+(defrule ...)
+```
+To exit REPL mode, enter an empty string or end.  

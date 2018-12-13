@@ -12,6 +12,9 @@ namespace CLIFC
         [Option('f', Separator =' ', HelpText = "Additional files to be processed.", Required = false)]
         public IEnumerable<string> Files { get; set; }
 
+        [Option('r', Default = false, HelpText = "Reset and run after loading files.", Required = false)]
+        public bool Runner { get; set; }
+
         [Option('w', Default = false, HelpText = "Watcher mode, app will restart after changing files.", Required = false)]
         public bool Watcher { get; set; }
     }

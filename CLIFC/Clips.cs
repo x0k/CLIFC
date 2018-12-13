@@ -131,8 +131,11 @@ namespace CLIFC
                 {
                     env.Clear();
                     Load(arr);
-                    env.Reset();
-                    env.Run();
+                    if (options.Runner)
+                    {
+                        env.Reset();
+                        env.Run();
+                    }
                 };
                 if (options.Watcher)
                 {
